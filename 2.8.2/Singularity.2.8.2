@@ -8,7 +8,7 @@ From: ubuntu:18.04
   export LC_ALL=en_US.UTF-8
 
 %files
-  bin/igv.sh /tmp
+  rootfs /.rootfs
 
 %post
   apt update && \
@@ -27,5 +27,6 @@ From: ubuntu:18.04
   rm IGV_${VER}.zip && \
   mv IGV_${VER} /opt && \
   echo "export PATH=$PATH:/opt/IGV_$VER" >> $SINGULARITY_ENVIRONMENT && \
-  chmod a+x /tmp/igv.sh && \
-  mv /tmp/igv.sh /opt/IGV_${VER}
+  find /.rootfs -type f -not -name "*.sh" | xargs chmod a+x && \
+  find /.rootfs -type f | xargs -L1 -i sh -c 'mv $1 ${1#/.rootfs}' -- {} && \
+  rm -rf /.rootfs
